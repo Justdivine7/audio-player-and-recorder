@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:mini_music_visualizer/mini_music_visualizer.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 import 'package:path/path.dart' as p;
@@ -22,6 +23,7 @@ class _TestPageState extends State<TestPage> {
   String? recordingPath;
   bool isRecording = false;
   String? currentlyPlaying;
+  TextEditingController searchController = TextEditingController();
 
   Future<void> saveRecordings() async {
     final prefs = await SharedPreferences.getInstance();
@@ -68,101 +70,175 @@ class _TestPageState extends State<TestPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+
+      // backgroundColor: Colors.grey.shade600,
+      appBar: AppBar(
+        title: const Text(
+          'Recorder',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+      ),
       body: _buildUi(),
       floatingActionButton: _recordingButton(),
     );
   }
 
   Widget _buildUi() {
+    final size = MediaQuery.of(context).size;
+
     return SafeArea(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          if (isRecording)
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text('Recording.....................'),
-              ],
-            ),
-          if (recordings.isNotEmpty && !isRecording)
-            ListView.separated(
-              shrinkWrap: true,
-              itemCount: recordings.length,
-              itemBuilder: (context, index) {
-                final recording = recordings[index];
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ListTile(
-                    leading: recording == currentlyPlaying
-                        ? const Icon(Icons.pause_circle)
-                        : const Icon(Icons.play_circle),
-                    title: Text(p.basename(recording)),
-                    trailing: PopupMenuButton(onSelected: (String value) {
-                      if (value == 'delete') {
-                        deleteRecording(recording);
-                      }
-                    }, itemBuilder: (
-                      BuildContext context,
-                    ) {
-                      return [
-                        const PopupMenuItem(
-                          value: 'delete',
-                          child: Text('Delete'),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment:
+              isRecording ? MainAxisAlignment.center : MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            isRecording
+                ? const SizedBox()
+                : TextField(
+                    controller: searchController,
+                    onChanged: (value) {},
+                    onSubmitted: (value) {},
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(
+                        Icons.search,
+                        color: Colors.grey.shade400,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: Colors.grey.shade600,
+                          width: 2,
                         ),
-                      ];
-                    }),
-                    onTap: () async {
-                      if (recording == currentlyPlaying) {
-                        audioPlayer.pause();
-                        setState(() {
-                          currentlyPlaying = null;
-                        });
-                      } else {
-                        if (currentlyPlaying != null) {
-                          await audioPlayer.stop();
-                        }
-                        await audioPlayer.setFilePath(recording);
-                        audioPlayer.play();
-                        setState(() {
-                          currentlyPlaying = recording;
-                        });
-                        audioPlayer.playerStateStream.listen((state) {
-                          if (state.processingState ==
-                              ProcessingState.completed) {
-                            setState(() {
-                              currentlyPlaying = null;
-                            });
-                          }
-                        });
-                      }
-                    },
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: Colors.grey.shade400,
+                        ),
+                      ),
+                      hintText: 'Search',
+                      hintStyle: TextStyle(
+                        color: Colors.grey.shade400,
+                      ),
+                    ),
                   ),
-                );
-              },
-              separatorBuilder: (BuildContext context, int index) {
-                return const Divider();
-              },
+            const SizedBox(
+              height: 20,
             ),
-          if (recordingPath == null && recordings.isEmpty && isRecording)
-            const Center(
-              child: Text(
-                textAlign: TextAlign.center,
-                'No recording found, click the button to start recording',
-                style: TextStyle(
-                  fontSize: 18,
+            if (isRecording)
+              Center(
+                child: MiniMusicVisualizer(
+                  color: Colors.grey,
+                  width: size.width * 0.3,
+                  height: size.width * 0.5,
+                  radius: 2,
+                  animate: true,
                 ),
               ),
-            ),
-        ],
+            if (recordings.isNotEmpty && !isRecording)
+              ListView.builder(
+                shrinkWrap: true,
+                itemCount: recordings.length,
+                itemBuilder: (context, index) {
+                  final recording = recordings[index];
+                  return Card(
+                    child: ListTile(
+                      leading: recording == currentlyPlaying
+                          ? const Icon(Icons.pause_circle)
+                          : const Icon(Icons.play_circle),
+                      title: Text(p.basename(recording)),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          recording == currentlyPlaying
+                              ? const MiniMusicVisualizer(
+                                  color: Colors.red,
+                                  width: 4,
+                                  height: 15,
+                                  radius: 2,
+                                  animate: true,
+                                )
+                              : const SizedBox(),
+                          PopupMenuButton(
+                            onSelected: (String value) {
+                              if (value == 'delete') {
+                                deleteRecording(recording);
+                              }
+                            },
+                            itemBuilder: (
+                              BuildContext context,
+                            ) {
+                              return [
+                                const PopupMenuItem(
+                                  value: 'delete',
+                                  child: Text('Delete'),
+                                ),
+                              ];
+                            },
+                          ),
+                        ],
+                      ),
+                      onTap: () async {
+                        if (recording == currentlyPlaying) {
+                          if (audioPlayer.playing) {
+                            await audioPlayer.pause();
+                          } else {
+                            await audioPlayer.play();
+                          }
+                        } else {
+                          if (currentlyPlaying != null) {
+                            await audioPlayer.stop();
+                          }
+                          await audioPlayer.setFilePath(recording);
+                          audioPlayer.play();
+                          setState(() {
+                            currentlyPlaying = recording;
+                          });
+                          audioPlayer.playerStateStream.listen((state) {
+                            if (state.processingState ==
+                                ProcessingState.completed) {
+                              setState(() {
+                                currentlyPlaying = null;
+                              });
+                            }
+                          });
+                        }
+                      },
+                    ),
+                  );
+                },
+              ),
+            if (recordingPath == null &&
+                recordings.isEmpty &&
+                isRecording == false)
+              const Center(
+                child: Text(
+                  textAlign: TextAlign.center,
+                  'No recording found, click the button to start recording',
+                  style: TextStyle(
+                    fontSize: 18,
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _recordingButton() {
     return FloatingActionButton(
+      backgroundColor: Colors.grey.shade700,
+      foregroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(26),
+      ),
       onPressed: () async {
         if (isRecording) {
           String? filePath = await audioRecorder.stop();
