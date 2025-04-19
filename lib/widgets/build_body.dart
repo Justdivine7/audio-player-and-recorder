@@ -43,7 +43,7 @@ class BuildBody extends StatelessWidget {
             if (isRecording)
               Center(
                   child: MiniMusicVisualizer(
-                color: Theme.of(context).canvasColor,
+                color: Theme.of(context).indicatorColor,
                 width: size.width * 0.3,
                 height: size.height * 0.3,
                 animate: true,

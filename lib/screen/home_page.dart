@@ -23,7 +23,7 @@ class _HomePageState extends State<HomePage> {
   List<String> recordings = [];
   AudioRecorder audioRecorder = AudioRecorder();
   AudioPlayer audioPlayer = AudioPlayer();
-   String? recordingPath;
+  String? recordingPath;
   bool isRecording = false;
   String? currentlyPlaying;
   TextEditingController searchController = TextEditingController();
@@ -127,9 +127,7 @@ class _HomePageState extends State<HomePage> {
           currentlyPlaying: currentlyPlaying,
           deleteRecording: deleteRecording,
           audioPlayer: audioPlayer,
-          // recordingPath: recordingPath,
           searchFunction: searchRecordings,
-        
           onCurrentlyPlayingChanged: (value) {
             setState(() {
               currentlyPlaying = value;
