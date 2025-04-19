@@ -11,6 +11,7 @@ class BuildBody extends StatelessWidget {
   final String? currentlyPlaying;
   final Future<void> Function(String) deleteRecording;
   final AudioPlayer audioPlayer;
+  final Future <void> Function() loadRecordings;
 
   final void Function(String?) onCurrentlyPlayingChanged;
   final void Function(String) searchFunction;
@@ -22,9 +23,8 @@ class BuildBody extends StatelessWidget {
     required this.currentlyPlaying,
     required this.deleteRecording,
     required this.audioPlayer,
-    // required this.recordingPath,
     required this.onCurrentlyPlayingChanged,
-    required this.searchFunction,
+    required this.searchFunction, required this.loadRecordings,
   });
 
   @override
@@ -38,7 +38,7 @@ class BuildBody extends StatelessWidget {
           mainAxisAlignment: isRecording || recordings.isEmpty
               ? MainAxisAlignment.center
               : MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (isRecording)
               Center(
@@ -66,9 +66,16 @@ class BuildBody extends StatelessWidget {
                 ],
               )
             else ...[
-              SearchField(
-                  searchController: searchController,
-                  searchFunction: searchFunction),
+              Row(
+                children: [
+                  Expanded(
+                    child: SearchField(
+                      loadRecordings: loadRecordings,
+                        searchController: searchController,
+                        searchFunction: searchFunction),
+                  ),
+                ],
+              ),
               SizedBox(height: size.height * 0.025),
               Expanded(
                   child: RecordingsList(

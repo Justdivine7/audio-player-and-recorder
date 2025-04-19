@@ -77,6 +77,7 @@ class _HomePageState extends State<HomePage> {
       }).toList();
       setState(() {
         filteredRecordings = searchResult;
+       
       });
     }
   }
@@ -121,6 +122,7 @@ class _HomePageState extends State<HomePage> {
         centerTitle: true,
       ),
       body: BuildBody(
+       loadRecordings: loadRecordings,
           isRecording: isRecording,
           searchController: searchController,
           recordings: filteredRecordings,
