@@ -122,6 +122,7 @@ class _HomePageState extends State<HomePage> {
         centerTitle: true,
       ),
       body: BuildBody(
+        filteredRecordings: filteredRecordings,
        loadRecordings: loadRecordings,
           isRecording: isRecording,
           searchController: searchController,

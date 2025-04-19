@@ -16,7 +16,7 @@ class SearchField extends StatelessWidget {
     return TextField(
       controller: searchController,
       onChanged: searchFunction,
-      onSubmitted: searchFunction,
+      // onSubmitted: searchFunction,
       decoration: InputDecoration(
         suffixIcon: IconButton(
             onPressed: ()async {
