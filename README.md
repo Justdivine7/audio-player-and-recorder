@@ -53,6 +53,9 @@ lib/
 ├── screen/                      # App screens
 └── theme/                      # Light & dark mode themes
 
+![Screenshot_20250419_161158](https://github.com/user-attachments/assets/a6e5695a-a889-4e0c-8d7e-ec4a4c88398e)
+![Screenshot_20250419_161305](https://github.com/user-attachments/assets/cb3570ed-909a-4699-8560-afc810ffead4)
+
 
 🙌 Contribution
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
