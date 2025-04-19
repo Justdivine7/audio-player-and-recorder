@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:audio_player/widgets/build_body.dart';
 import 'package:audio_player/widgets/recording_button.dart';
-import 'package:audio_waveforms/audio_waveforms.dart';
+
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path/path.dart' as p;
@@ -23,8 +23,7 @@ class _HomePageState extends State<HomePage> {
   List<String> recordings = [];
   AudioRecorder audioRecorder = AudioRecorder();
   AudioPlayer audioPlayer = AudioPlayer();
-  RecorderController recorderController = RecorderController();
-  String? recordingPath;
+   String? recordingPath;
   bool isRecording = false;
   String? currentlyPlaying;
   TextEditingController searchController = TextEditingController();
@@ -130,7 +129,7 @@ class _HomePageState extends State<HomePage> {
           audioPlayer: audioPlayer,
           // recordingPath: recordingPath,
           searchFunction: searchRecordings,
-          recorderController: recorderController,
+        
           onCurrentlyPlayingChanged: (value) {
             setState(() {
               currentlyPlaying = value;
