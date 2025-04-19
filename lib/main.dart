@@ -1,4 +1,5 @@
-import 'package:audio_player/test_page.dart';
+import 'package:audio_player/home_page.dart';
+import 'package:audio_player/theme/theme_data.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -11,11 +12,12 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-     debugShowCheckedModeBanner: false,
-      
-      home: TestPage( ),
+    return MaterialApp(
+      theme: lightTheme,
+      darkTheme: darkTheme,
+      themeMode: ThemeMode.system,
+      debugShowCheckedModeBanner: false,
+      home: const HomePage(),
     );
   }
 }
- 
