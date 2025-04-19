@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:audio_player/widgets/build_body.dart';
@@ -85,12 +86,21 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     loadRecordings();
+    audioPlayer.playerStateStream.listen((state) {
+      if (state.processingState == ProcessingState.completed) {
+        setState(() {
+          currentlyPlaying = null;
+        });
+        audioPlayer.stop();
+      }
+    });
   }
 
   @override
   void dispose() {
     super.dispose();
     saveRecordings();
+    audioPlayer.dispose();
   }
 
   @override
@@ -126,32 +136,35 @@ class _HomePageState extends State<HomePage> {
               currentlyPlaying = value;
             });
           }),
-      floatingActionButton: RecordingButton(
-          isRecording: isRecording,
-          recordingPath: recordingPath,
-          audioRecorder: audioRecorder,
-          saveRecordings: saveRecordings,
-          recordingCount: recordingCount,
-          onRecordingStateChanged: (val) {
-            setState(() {
-              isRecording = val;
-            });
-          },
-          onRecordingPathChanged: (val) {
-            setState(() {
-              recordingPath = val;
-            });
-          },
-          onAddRecording: (path) {
-            setState(() {
-              recordings.add(path);
-            });
-          },
-          onRecordingCountChanged: (val) {
-            setState(() {
-              recordingCount = val;
-            });
-          }),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: RecordingButton(
+            isRecording: isRecording,
+            recordingPath: recordingPath,
+            audioRecorder: audioRecorder,
+            saveRecordings: saveRecordings,
+            recordingCount: recordingCount,
+            onRecordingStateChanged: (val) {
+              setState(() {
+                isRecording = val;
+              });
+            },
+            onRecordingPathChanged: (val) {
+              setState(() {
+                recordingPath = val;
+              });
+            },
+            onAddRecording: (path) {
+              setState(() {
+                recordings.add(path);
+              });
+            },
+            onRecordingCountChanged: (val) {
+              setState(() {
+                recordingCount = val;
+              });
+            }),
+      ),
     );
   }
 }

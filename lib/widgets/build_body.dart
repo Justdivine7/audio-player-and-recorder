@@ -43,26 +43,24 @@ class BuildBody extends StatelessWidget {
           children: [
             if (isRecording)
               Center(
-                child: AudioWaveforms(
-                  enableGesture: false,
-                  size: Size(size.width * 0.5, size.height * 0.3),
-                  recorderController: recorderController,
-                  // waveStyle: WaveStyle(
-                  //   waveColor: Colors.greenAccent,
-                  //   extendWaveform: true,
-                  //   showMiddleLine: true,
-                  //   spacing: 6,
-                  //   waveThickness: 2.5,
-                  // ),
-                ),
-              )
+                  child: MiniMusicVisualizer(
+                color: Theme.of(context).canvasColor,
+                width: size.width * 0.3,
+                height: size.height * 0.3,
+                animate: true,
+              ))
             else if (recordings.isEmpty)
-              const Text(
-                textAlign: TextAlign.center,
-                'No recording found, click the button to start recording',
-                style: TextStyle(
-                  fontSize: 18,
-                ),
+              Column(
+                children: [
+                  Icon(Icons.mic_none, size: size.height* 0.1,color: Theme.of(context).cardColor,),
+                  const Text(
+                    textAlign: TextAlign.center,
+                    'Welcome, click the button to start recording',
+                    style: TextStyle(
+                      fontSize: 18,
+                    ),
+                  ),
+                ],
               )
             else ...[
               TextField(
@@ -100,24 +98,44 @@ class BuildBody extends StatelessWidget {
                   itemCount: recordings.length,
                   itemBuilder: (context, index) {
                     final recording = recordings[index];
+                    print(
+                        'Building ListTile for $recording, playing: ${audioPlayer.playing}');
                     return Card(
                       child: ListTile(
+                        tileColor: Theme.of(context).cardColor,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6)),
                         leading: recording == currentlyPlaying
-                            ? const Icon(Icons.pause_circle)
+                            ? StreamBuilder(
+                                stream: audioPlayer.playerStateStream,
+                                builder: (context, snapshot) {
+                                  final playing =
+                                      snapshot.data?.playing ?? false;
+                                  return Icon(
+                                    playing
+                                        ? Icons.pause_circle_outline
+                                        : Icons.play_circle,
+                                    color: Theme.of(context).indicatorColor,
+                                  );
+                                })
                             : const Icon(Icons.play_circle),
                         title: Text(p.basename(recording)),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            recording == currentlyPlaying
-                                ? const MiniMusicVisualizer(
-                                    color: Colors.red,
-                                    width: 4,
-                                    height: 15,
-                                    radius: 2,
-                                    animate: true,
-                                  )
-                                : const SizedBox(),
+                            if (recording == currentlyPlaying)
+                              StreamBuilder(
+                                  stream: audioPlayer.playerStateStream,
+                                  builder: (context, snapshot) {
+                                    final playing =
+                                        snapshot.data?.playing ?? false;
+                                    return MiniMusicVisualizer(
+                                      color: Theme.of(context).indicatorColor,
+                                      width: 4,
+                                      height: 15,
+                                      animate: playing,
+                                    );
+                                  }),
                             PopupMenuButton(
                               onSelected: (String value) {
                                 if (value == 'delete') {
@@ -141,22 +159,30 @@ class BuildBody extends StatelessWidget {
                           if (recording == currentlyPlaying) {
                             if (audioPlayer.playing) {
                               await audioPlayer.pause();
+                              print(
+                                  'Audio paused, playing: ${audioPlayer.playing}');
                             } else {
                               await audioPlayer.play();
+                              print(
+                                  'Audio playing, playing: ${audioPlayer.playing}');
                             }
                           } else {
-                            if (currentlyPlaying != null) {
-                              await audioPlayer.stop();
+                            await audioPlayer.stop();
+                            onCurrentlyPlayingChanged(null);
+                            try {
+                              await audioPlayer.setFilePath(recording);
+                              audioPlayer.play();
+                              onCurrentlyPlayingChanged(recording);
+                              print(
+                                  'New audio started: $recording, playing: ${audioPlayer.playing}');
+                            } catch (e) {
+                              onCurrentlyPlayingChanged(null);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Error playing $recording'),
+                                ),
+                              );
                             }
-                            await audioPlayer.setFilePath(recording);
-                            audioPlayer.play();
-                            onCurrentlyPlayingChanged(recording);
-                            audioPlayer.playerStateStream.listen((state) {
-                              if (state.processingState ==
-                                  ProcessingState.completed) {
-                                onCurrentlyPlayingChanged(null);
-                              }
-                            });
                           }
                         },
                       ),

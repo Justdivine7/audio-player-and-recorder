@@ -33,8 +33,9 @@ class RecordingButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
-      backgroundColor: Colors.grey.shade700,
-      foregroundColor: Colors.white,
+      elevation: 0,
+      backgroundColor: Theme.of(context).indicatorColor,
+      foregroundColor: Theme.of(context).scaffoldBackgroundColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(26),
       ),
@@ -54,10 +55,8 @@ class RecordingButton extends StatelessWidget {
             if (downloadsDir == null) {
               throw Exception('No downloads directory');
             }
-            final int newCount = recordingCount + 1;
-            onRecordingCountChanged(newCount);
-            final String uniqueFileName = 'recording$newCount.mp3';
-            final String audioPath = p.join(downloadsDir.path, uniqueFileName);
+            final String audioPath =
+                await getNextAvailableRecordingPath(downloadsDir);
             await audioRecorder.start(const RecordConfig(), path: audioPath);
             onRecordingStateChanged(true);
             onRecordingPathChanged(null);
@@ -72,5 +71,16 @@ class RecordingButton extends StatelessWidget {
       },
       child: isRecording ? const Icon(Icons.stop) : const Icon(Icons.mic),
     );
+  }
+
+  Future<String> getNextAvailableRecordingPath(Directory dir) async {
+    int index = 1;
+    String path;
+    do {
+      path = p.join(dir.path, 'recording$index.mp3');
+      index++;
+    } while (await File(path).exists());
+
+    return path;
   }
 }
