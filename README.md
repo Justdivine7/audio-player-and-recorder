@@ -56,6 +56,9 @@ lib/
 ![Screenshot_20250419_161158](https://github.com/user-attachments/assets/a6e5695a-a889-4e0c-8d7e-ec4a4c88398e)
 ![Screenshot_20250419_161305](https://github.com/user-attachments/assets/cb3570ed-909a-4699-8560-afc810ffead4)
 
+![Screenshot_20250419_161710](https://github.com/user-attachments/assets/bdd60600-b334-43f3-a091-2bc9afbf529d)
+![Screenshot_20250419_161804](https://github.com/user-attachments/assets/3acae691-5c07-46eb-9714-ee7bce183826)
+
 
 🙌 Contribution
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
