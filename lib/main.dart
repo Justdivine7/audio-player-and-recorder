@@ -1,4 +1,4 @@
-import 'package:audio_player/home_page.dart';
+import 'package:audio_player/screen/home_page.dart';
 import 'package:audio_player/theme/theme_data.dart';
 import 'package:flutter/material.dart';
 
